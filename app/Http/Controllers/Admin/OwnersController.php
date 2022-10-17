@@ -22,7 +22,7 @@ class OwnersController extends Controller
         // $date_parse = Carbon::parse(now());
         // echo $date_now->year;
         // echo $date_parse;
-        
+
         // $e_all = Owner::all();
         // $q_get = DB::table('owners')->select('name', 'created_at')->get();
         // $q_first = DB::table('owners')->select('name')->first();
@@ -35,9 +35,11 @@ class OwnersController extends Controller
         // dd($e_all, $q_get, $q_first, $c_test);
 
         $owners = Owner::select('name', 'email', 'created_at')->get();
-        
-        return view('admin.owners.index', 
-        compact('owners'));
+
+        return view(
+            'admin.owners.index',
+            compact('owners')
+        );
     }
 
     /**
@@ -58,7 +60,22 @@ class OwnersController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:owners',
+            'password' => 'required|string|confirmed|min:8',
+        ]);
+
+        Owner::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        return redirect()
+        ->route('admin.owners.index')
+        ->with(['message' => 'オーナー登録を実施しました。',
+        'status' => 'info']);
     }
 
     /**
